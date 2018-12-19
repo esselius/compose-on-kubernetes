@@ -21,9 +21,6 @@ limitations under the License.
 package v1alpha3
 
 import (
-	time "time"
-	unsafe "unsafe"
-
 	v1beta2 "github.com/docker/compose-on-kubernetes/api/compose/v1beta2"
 	conversion "k8s.io/apimachinery/pkg/conversion"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -120,7 +117,7 @@ func autoConvert_v1alpha3_ConfigObjConfig_To_v1beta2_ConfigObjConfig(in *ConfigO
 	if err := Convert_v1alpha3_External_To_v1beta2_External(&in.External, &out.External, s); err != nil {
 		return err
 	}
-	out.Labels = *(*map[string]string)(unsafe.Pointer(&in.Labels))
+	out.Labels = in.Labels
 	return nil
 }
 
@@ -135,7 +132,7 @@ func autoConvert_v1beta2_ConfigObjConfig_To_v1alpha3_ConfigObjConfig(in *v1beta2
 	if err := Convert_v1beta2_External_To_v1alpha3_External(&in.External, &out.External, s); err != nil {
 		return err
 	}
-	out.Labels = *(*map[string]string)(unsafe.Pointer(&in.Labels))
+	out.Labels = in.Labels
 	return nil
 }
 
@@ -167,10 +164,46 @@ func Convert_v1beta2_Constraint_To_v1alpha3_Constraint(in *v1beta2.Constraint, o
 }
 
 func autoConvert_v1alpha3_Constraints_To_v1beta2_Constraints(in *Constraints, out *v1beta2.Constraints, s conversion.Scope) error {
-	out.OperatingSystem = (*v1beta2.Constraint)(unsafe.Pointer(in.OperatingSystem))
-	out.Architecture = (*v1beta2.Constraint)(unsafe.Pointer(in.Architecture))
-	out.Hostname = (*v1beta2.Constraint)(unsafe.Pointer(in.Hostname))
-	out.MatchLabels = *(*map[string]v1beta2.Constraint)(unsafe.Pointer(&in.MatchLabels))
+	if in.OperatingSystem != nil {
+		in, out := &in.OperatingSystem, &out.OperatingSystem
+		*out = new(v1beta2.Constraint)
+		if err := Convert_v1alpha3_Constraint_To_v1beta2_Constraint(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.OperatingSystem = nil
+	}
+	if in.Architecture != nil {
+		in, out := &in.Architecture, &out.Architecture
+		*out = new(v1beta2.Constraint)
+		if err := Convert_v1alpha3_Constraint_To_v1beta2_Constraint(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.Architecture = nil
+	}
+	if in.Hostname != nil {
+		in, out := &in.Hostname, &out.Hostname
+		*out = new(v1beta2.Constraint)
+		if err := Convert_v1alpha3_Constraint_To_v1beta2_Constraint(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.Hostname = nil
+	}
+	if in.MatchLabels != nil {
+		in, out := &in.MatchLabels, &out.MatchLabels
+		*out = make(map[string]v1beta2.Constraint, len(*in))
+		for key, val := range *in {
+			newVal := new(v1beta2.Constraint)
+			if err := Convert_v1alpha3_Constraint_To_v1beta2_Constraint(&val, newVal, s); err != nil {
+				return err
+			}
+			(*out)[key] = *newVal
+		}
+	} else {
+		out.MatchLabels = nil
+	}
 	return nil
 }
 
@@ -180,10 +213,46 @@ func Convert_v1alpha3_Constraints_To_v1beta2_Constraints(in *Constraints, out *v
 }
 
 func autoConvert_v1beta2_Constraints_To_v1alpha3_Constraints(in *v1beta2.Constraints, out *Constraints, s conversion.Scope) error {
-	out.OperatingSystem = (*Constraint)(unsafe.Pointer(in.OperatingSystem))
-	out.Architecture = (*Constraint)(unsafe.Pointer(in.Architecture))
-	out.Hostname = (*Constraint)(unsafe.Pointer(in.Hostname))
-	out.MatchLabels = *(*map[string]Constraint)(unsafe.Pointer(&in.MatchLabels))
+	if in.OperatingSystem != nil {
+		in, out := &in.OperatingSystem, &out.OperatingSystem
+		*out = new(Constraint)
+		if err := Convert_v1beta2_Constraint_To_v1alpha3_Constraint(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.OperatingSystem = nil
+	}
+	if in.Architecture != nil {
+		in, out := &in.Architecture, &out.Architecture
+		*out = new(Constraint)
+		if err := Convert_v1beta2_Constraint_To_v1alpha3_Constraint(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.Architecture = nil
+	}
+	if in.Hostname != nil {
+		in, out := &in.Hostname, &out.Hostname
+		*out = new(Constraint)
+		if err := Convert_v1beta2_Constraint_To_v1alpha3_Constraint(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.Hostname = nil
+	}
+	if in.MatchLabels != nil {
+		in, out := &in.MatchLabels, &out.MatchLabels
+		*out = make(map[string]Constraint, len(*in))
+		for key, val := range *in {
+			newVal := new(Constraint)
+			if err := Convert_v1beta2_Constraint_To_v1alpha3_Constraint(&val, newVal, s); err != nil {
+				return err
+			}
+			(*out)[key] = *newVal
+		}
+	} else {
+		out.MatchLabels = nil
+	}
 	return nil
 }
 
@@ -194,13 +263,29 @@ func Convert_v1beta2_Constraints_To_v1alpha3_Constraints(in *v1beta2.Constraints
 
 func autoConvert_v1alpha3_DeployConfig_To_v1beta2_DeployConfig(in *DeployConfig, out *v1beta2.DeployConfig, s conversion.Scope) error {
 	out.Mode = in.Mode
-	out.Replicas = (*uint64)(unsafe.Pointer(in.Replicas))
-	out.Labels = *(*map[string]string)(unsafe.Pointer(&in.Labels))
-	out.UpdateConfig = (*v1beta2.UpdateConfig)(unsafe.Pointer(in.UpdateConfig))
+	out.Replicas = in.Replicas
+	out.Labels = in.Labels
+	if in.UpdateConfig != nil {
+		in, out := &in.UpdateConfig, &out.UpdateConfig
+		*out = new(v1beta2.UpdateConfig)
+		if err := Convert_v1alpha3_UpdateConfig_To_v1beta2_UpdateConfig(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.UpdateConfig = nil
+	}
 	if err := Convert_v1alpha3_Resources_To_v1beta2_Resources(&in.Resources, &out.Resources, s); err != nil {
 		return err
 	}
-	out.RestartPolicy = (*v1beta2.RestartPolicy)(unsafe.Pointer(in.RestartPolicy))
+	if in.RestartPolicy != nil {
+		in, out := &in.RestartPolicy, &out.RestartPolicy
+		*out = new(v1beta2.RestartPolicy)
+		if err := Convert_v1alpha3_RestartPolicy_To_v1beta2_RestartPolicy(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.RestartPolicy = nil
+	}
 	if err := Convert_v1alpha3_Placement_To_v1beta2_Placement(&in.Placement, &out.Placement, s); err != nil {
 		return err
 	}
@@ -214,13 +299,29 @@ func Convert_v1alpha3_DeployConfig_To_v1beta2_DeployConfig(in *DeployConfig, out
 
 func autoConvert_v1beta2_DeployConfig_To_v1alpha3_DeployConfig(in *v1beta2.DeployConfig, out *DeployConfig, s conversion.Scope) error {
 	out.Mode = in.Mode
-	out.Replicas = (*uint64)(unsafe.Pointer(in.Replicas))
-	out.Labels = *(*map[string]string)(unsafe.Pointer(&in.Labels))
-	out.UpdateConfig = (*UpdateConfig)(unsafe.Pointer(in.UpdateConfig))
+	out.Replicas = in.Replicas
+	out.Labels = in.Labels
+	if in.UpdateConfig != nil {
+		in, out := &in.UpdateConfig, &out.UpdateConfig
+		*out = new(UpdateConfig)
+		if err := Convert_v1beta2_UpdateConfig_To_v1alpha3_UpdateConfig(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.UpdateConfig = nil
+	}
 	if err := Convert_v1beta2_Resources_To_v1alpha3_Resources(&in.Resources, &out.Resources, s); err != nil {
 		return err
 	}
-	out.RestartPolicy = (*RestartPolicy)(unsafe.Pointer(in.RestartPolicy))
+	if in.RestartPolicy != nil {
+		in, out := &in.RestartPolicy, &out.RestartPolicy
+		*out = new(RestartPolicy)
+		if err := Convert_v1beta2_RestartPolicy_To_v1alpha3_RestartPolicy(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.RestartPolicy = nil
+	}
 	if err := Convert_v1beta2_Placement_To_v1alpha3_Placement(&in.Placement, &out.Placement, s); err != nil {
 		return err
 	}
@@ -260,7 +361,7 @@ func autoConvert_v1alpha3_FileObjectConfig_To_v1beta2_FileObjectConfig(in *FileO
 	if err := Convert_v1alpha3_External_To_v1beta2_External(&in.External, &out.External, s); err != nil {
 		return err
 	}
-	out.Labels = *(*map[string]string)(unsafe.Pointer(&in.Labels))
+	out.Labels = in.Labels
 	return nil
 }
 
@@ -275,7 +376,7 @@ func autoConvert_v1beta2_FileObjectConfig_To_v1alpha3_FileObjectConfig(in *v1bet
 	if err := Convert_v1beta2_External_To_v1alpha3_External(&in.External, &out.External, s); err != nil {
 		return err
 	}
-	out.Labels = *(*map[string]string)(unsafe.Pointer(&in.Labels))
+	out.Labels = in.Labels
 	return nil
 }
 
@@ -289,7 +390,7 @@ func autoConvert_v1alpha3_FileReferenceConfig_To_v1beta2_FileReferenceConfig(in 
 	out.Target = in.Target
 	out.UID = in.UID
 	out.GID = in.GID
-	out.Mode = (*uint32)(unsafe.Pointer(in.Mode))
+	out.Mode = in.Mode
 	return nil
 }
 
@@ -303,7 +404,7 @@ func autoConvert_v1beta2_FileReferenceConfig_To_v1alpha3_FileReferenceConfig(in 
 	out.Target = in.Target
 	out.UID = in.UID
 	out.GID = in.GID
-	out.Mode = (*uint32)(unsafe.Pointer(in.Mode))
+	out.Mode = in.Mode
 	return nil
 }
 
@@ -313,10 +414,10 @@ func Convert_v1beta2_FileReferenceConfig_To_v1alpha3_FileReferenceConfig(in *v1b
 }
 
 func autoConvert_v1alpha3_HealthCheckConfig_To_v1beta2_HealthCheckConfig(in *HealthCheckConfig, out *v1beta2.HealthCheckConfig, s conversion.Scope) error {
-	out.Test = *(*[]string)(unsafe.Pointer(&in.Test))
-	out.Timeout = (*time.Duration)(unsafe.Pointer(in.Timeout))
-	out.Interval = (*time.Duration)(unsafe.Pointer(in.Interval))
-	out.Retries = (*uint64)(unsafe.Pointer(in.Retries))
+	out.Test = in.Test
+	out.Timeout = in.Timeout
+	out.Interval = in.Interval
+	out.Retries = in.Retries
 	return nil
 }
 
@@ -326,10 +427,10 @@ func Convert_v1alpha3_HealthCheckConfig_To_v1beta2_HealthCheckConfig(in *HealthC
 }
 
 func autoConvert_v1beta2_HealthCheckConfig_To_v1alpha3_HealthCheckConfig(in *v1beta2.HealthCheckConfig, out *HealthCheckConfig, s conversion.Scope) error {
-	out.Test = *(*[]string)(unsafe.Pointer(&in.Test))
-	out.Timeout = (*time.Duration)(unsafe.Pointer(in.Timeout))
-	out.Interval = (*time.Duration)(unsafe.Pointer(in.Interval))
-	out.Retries = (*uint64)(unsafe.Pointer(in.Retries))
+	out.Test = in.Test
+	out.Timeout = in.Timeout
+	out.Interval = in.Interval
+	out.Retries = in.Retries
 	return nil
 }
 
@@ -361,7 +462,15 @@ func Convert_v1beta2_Owner_To_v1alpha3_Owner(in *v1beta2.Owner, out *Owner, s co
 }
 
 func autoConvert_v1alpha3_Placement_To_v1beta2_Placement(in *Placement, out *v1beta2.Placement, s conversion.Scope) error {
-	out.Constraints = (*v1beta2.Constraints)(unsafe.Pointer(in.Constraints))
+	if in.Constraints != nil {
+		in, out := &in.Constraints, &out.Constraints
+		*out = new(v1beta2.Constraints)
+		if err := Convert_v1alpha3_Constraints_To_v1beta2_Constraints(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.Constraints = nil
+	}
 	return nil
 }
 
@@ -371,7 +480,15 @@ func Convert_v1alpha3_Placement_To_v1beta2_Placement(in *Placement, out *v1beta2
 }
 
 func autoConvert_v1beta2_Placement_To_v1alpha3_Placement(in *v1beta2.Placement, out *Placement, s conversion.Scope) error {
-	out.Constraints = (*Constraints)(unsafe.Pointer(in.Constraints))
+	if in.Constraints != nil {
+		in, out := &in.Constraints, &out.Constraints
+		*out = new(Constraints)
+		if err := Convert_v1beta2_Constraints_To_v1alpha3_Constraints(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.Constraints = nil
+	}
 	return nil
 }
 
@@ -403,8 +520,24 @@ func Convert_v1beta2_Resource_To_v1alpha3_Resource(in *v1beta2.Resource, out *Re
 }
 
 func autoConvert_v1alpha3_Resources_To_v1beta2_Resources(in *Resources, out *v1beta2.Resources, s conversion.Scope) error {
-	out.Limits = (*v1beta2.Resource)(unsafe.Pointer(in.Limits))
-	out.Reservations = (*v1beta2.Resource)(unsafe.Pointer(in.Reservations))
+	if in.Limits != nil {
+		in, out := &in.Limits, &out.Limits
+		*out = new(v1beta2.Resource)
+		if err := Convert_v1alpha3_Resource_To_v1beta2_Resource(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.Limits = nil
+	}
+	if in.Reservations != nil {
+		in, out := &in.Reservations, &out.Reservations
+		*out = new(v1beta2.Resource)
+		if err := Convert_v1alpha3_Resource_To_v1beta2_Resource(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.Reservations = nil
+	}
 	return nil
 }
 
@@ -414,8 +547,24 @@ func Convert_v1alpha3_Resources_To_v1beta2_Resources(in *Resources, out *v1beta2
 }
 
 func autoConvert_v1beta2_Resources_To_v1alpha3_Resources(in *v1beta2.Resources, out *Resources, s conversion.Scope) error {
-	out.Limits = (*Resource)(unsafe.Pointer(in.Limits))
-	out.Reservations = (*Resource)(unsafe.Pointer(in.Reservations))
+	if in.Limits != nil {
+		in, out := &in.Limits, &out.Limits
+		*out = new(Resource)
+		if err := Convert_v1beta2_Resource_To_v1alpha3_Resource(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.Limits = nil
+	}
+	if in.Reservations != nil {
+		in, out := &in.Reservations, &out.Reservations
+		*out = new(Resource)
+		if err := Convert_v1beta2_Resource_To_v1alpha3_Resource(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.Reservations = nil
+	}
 	return nil
 }
 
@@ -446,8 +595,8 @@ func Convert_v1beta2_RestartPolicy_To_v1alpha3_RestartPolicy(in *v1beta2.Restart
 
 func autoConvert_v1alpha3_Scale_To_v1beta2_Scale(in *Scale, out *v1beta2.Scale, s conversion.Scope) error {
 	out.ObjectMeta = in.ObjectMeta
-	out.Spec = *(*map[string]int)(unsafe.Pointer(&in.Spec))
-	out.Status = *(*map[string]int)(unsafe.Pointer(&in.Status))
+	out.Spec = in.Spec
+	out.Status = in.Status
 	return nil
 }
 
@@ -458,8 +607,8 @@ func Convert_v1alpha3_Scale_To_v1beta2_Scale(in *Scale, out *v1beta2.Scale, s co
 
 func autoConvert_v1beta2_Scale_To_v1alpha3_Scale(in *v1beta2.Scale, out *Scale, s conversion.Scope) error {
 	out.ObjectMeta = in.ObjectMeta
-	out.Spec = *(*map[string]int)(unsafe.Pointer(&in.Spec))
-	out.Status = *(*map[string]int)(unsafe.Pointer(&in.Status))
+	out.Spec = in.Spec
+	out.Status = in.Status
 	return nil
 }
 
@@ -474,7 +623,7 @@ func autoConvert_v1alpha3_SecretConfig_To_v1beta2_SecretConfig(in *SecretConfig,
 	if err := Convert_v1alpha3_External_To_v1beta2_External(&in.External, &out.External, s); err != nil {
 		return err
 	}
-	out.Labels = *(*map[string]string)(unsafe.Pointer(&in.Labels))
+	out.Labels = in.Labels
 	return nil
 }
 
@@ -489,7 +638,7 @@ func autoConvert_v1beta2_SecretConfig_To_v1alpha3_SecretConfig(in *v1beta2.Secre
 	if err := Convert_v1beta2_External_To_v1alpha3_External(&in.External, &out.External, s); err != nil {
 		return err
 	}
-	out.Labels = *(*map[string]string)(unsafe.Pointer(&in.Labels))
+	out.Labels = in.Labels
 	return nil
 }
 
@@ -500,32 +649,80 @@ func Convert_v1beta2_SecretConfig_To_v1alpha3_SecretConfig(in *v1beta2.SecretCon
 
 func autoConvert_v1alpha3_ServiceConfig_To_v1beta2_ServiceConfig(in *ServiceConfig, out *v1beta2.ServiceConfig, s conversion.Scope) error {
 	out.Name = in.Name
-	out.CapAdd = *(*[]string)(unsafe.Pointer(&in.CapAdd))
-	out.CapDrop = *(*[]string)(unsafe.Pointer(&in.CapDrop))
-	out.Command = *(*[]string)(unsafe.Pointer(&in.Command))
-	out.Configs = *(*[]v1beta2.ServiceConfigObjConfig)(unsafe.Pointer(&in.Configs))
+	out.CapAdd = in.CapAdd
+	out.CapDrop = in.CapDrop
+	out.Command = in.Command
+	if in.Configs != nil {
+		in, out := &in.Configs, &out.Configs
+		*out = make([]v1beta2.ServiceConfigObjConfig, len(*in))
+		for i := range *in {
+			if err := Convert_v1alpha3_ServiceConfigObjConfig_To_v1beta2_ServiceConfigObjConfig(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.Configs = nil
+	}
 	if err := Convert_v1alpha3_DeployConfig_To_v1beta2_DeployConfig(&in.Deploy, &out.Deploy, s); err != nil {
 		return err
 	}
-	out.Entrypoint = *(*[]string)(unsafe.Pointer(&in.Entrypoint))
-	out.Environment = *(*map[string]*string)(unsafe.Pointer(&in.Environment))
-	out.ExtraHosts = *(*[]string)(unsafe.Pointer(&in.ExtraHosts))
+	out.Entrypoint = in.Entrypoint
+	out.Environment = in.Environment
+	out.ExtraHosts = in.ExtraHosts
 	out.Hostname = in.Hostname
-	out.HealthCheck = (*v1beta2.HealthCheckConfig)(unsafe.Pointer(in.HealthCheck))
+	if in.HealthCheck != nil {
+		in, out := &in.HealthCheck, &out.HealthCheck
+		*out = new(v1beta2.HealthCheckConfig)
+		if err := Convert_v1alpha3_HealthCheckConfig_To_v1beta2_HealthCheckConfig(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.HealthCheck = nil
+	}
 	out.Image = in.Image
 	out.Ipc = in.Ipc
-	out.Labels = *(*map[string]string)(unsafe.Pointer(&in.Labels))
+	out.Labels = in.Labels
 	out.Pid = in.Pid
-	out.Ports = *(*[]v1beta2.ServicePortConfig)(unsafe.Pointer(&in.Ports))
+	if in.Ports != nil {
+		in, out := &in.Ports, &out.Ports
+		*out = make([]v1beta2.ServicePortConfig, len(*in))
+		for i := range *in {
+			if err := Convert_v1alpha3_ServicePortConfig_To_v1beta2_ServicePortConfig(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.Ports = nil
+	}
 	out.Privileged = in.Privileged
 	out.ReadOnly = in.ReadOnly
-	out.Secrets = *(*[]v1beta2.ServiceSecretConfig)(unsafe.Pointer(&in.Secrets))
+	if in.Secrets != nil {
+		in, out := &in.Secrets, &out.Secrets
+		*out = make([]v1beta2.ServiceSecretConfig, len(*in))
+		for i := range *in {
+			if err := Convert_v1alpha3_ServiceSecretConfig_To_v1beta2_ServiceSecretConfig(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.Secrets = nil
+	}
 	out.StdinOpen = in.StdinOpen
-	out.StopGracePeriod = (*time.Duration)(unsafe.Pointer(in.StopGracePeriod))
-	out.Tmpfs = *(*[]string)(unsafe.Pointer(&in.Tmpfs))
+	out.StopGracePeriod = in.StopGracePeriod
+	out.Tmpfs = in.Tmpfs
 	out.Tty = in.Tty
-	out.User = (*int64)(unsafe.Pointer(in.User))
-	out.Volumes = *(*[]v1beta2.ServiceVolumeConfig)(unsafe.Pointer(&in.Volumes))
+	out.User = in.User
+	if in.Volumes != nil {
+		in, out := &in.Volumes, &out.Volumes
+		*out = make([]v1beta2.ServiceVolumeConfig, len(*in))
+		for i := range *in {
+			if err := Convert_v1alpha3_ServiceVolumeConfig_To_v1beta2_ServiceVolumeConfig(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.Volumes = nil
+	}
 	out.WorkingDir = in.WorkingDir
 	return nil
 }
@@ -537,32 +734,80 @@ func Convert_v1alpha3_ServiceConfig_To_v1beta2_ServiceConfig(in *ServiceConfig, 
 
 func autoConvert_v1beta2_ServiceConfig_To_v1alpha3_ServiceConfig(in *v1beta2.ServiceConfig, out *ServiceConfig, s conversion.Scope) error {
 	out.Name = in.Name
-	out.CapAdd = *(*[]string)(unsafe.Pointer(&in.CapAdd))
-	out.CapDrop = *(*[]string)(unsafe.Pointer(&in.CapDrop))
-	out.Command = *(*[]string)(unsafe.Pointer(&in.Command))
-	out.Configs = *(*[]ServiceConfigObjConfig)(unsafe.Pointer(&in.Configs))
+	out.CapAdd = in.CapAdd
+	out.CapDrop = in.CapDrop
+	out.Command = in.Command
+	if in.Configs != nil {
+		in, out := &in.Configs, &out.Configs
+		*out = make([]ServiceConfigObjConfig, len(*in))
+		for i := range *in {
+			if err := Convert_v1beta2_ServiceConfigObjConfig_To_v1alpha3_ServiceConfigObjConfig(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.Configs = nil
+	}
 	if err := Convert_v1beta2_DeployConfig_To_v1alpha3_DeployConfig(&in.Deploy, &out.Deploy, s); err != nil {
 		return err
 	}
-	out.Entrypoint = *(*[]string)(unsafe.Pointer(&in.Entrypoint))
-	out.Environment = *(*map[string]*string)(unsafe.Pointer(&in.Environment))
-	out.ExtraHosts = *(*[]string)(unsafe.Pointer(&in.ExtraHosts))
+	out.Entrypoint = in.Entrypoint
+	out.Environment = in.Environment
+	out.ExtraHosts = in.ExtraHosts
 	out.Hostname = in.Hostname
-	out.HealthCheck = (*HealthCheckConfig)(unsafe.Pointer(in.HealthCheck))
+	if in.HealthCheck != nil {
+		in, out := &in.HealthCheck, &out.HealthCheck
+		*out = new(HealthCheckConfig)
+		if err := Convert_v1beta2_HealthCheckConfig_To_v1alpha3_HealthCheckConfig(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.HealthCheck = nil
+	}
 	out.Image = in.Image
 	out.Ipc = in.Ipc
-	out.Labels = *(*map[string]string)(unsafe.Pointer(&in.Labels))
+	out.Labels = in.Labels
 	out.Pid = in.Pid
-	out.Ports = *(*[]ServicePortConfig)(unsafe.Pointer(&in.Ports))
+	if in.Ports != nil {
+		in, out := &in.Ports, &out.Ports
+		*out = make([]ServicePortConfig, len(*in))
+		for i := range *in {
+			if err := Convert_v1beta2_ServicePortConfig_To_v1alpha3_ServicePortConfig(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.Ports = nil
+	}
 	out.Privileged = in.Privileged
 	out.ReadOnly = in.ReadOnly
-	out.Secrets = *(*[]ServiceSecretConfig)(unsafe.Pointer(&in.Secrets))
+	if in.Secrets != nil {
+		in, out := &in.Secrets, &out.Secrets
+		*out = make([]ServiceSecretConfig, len(*in))
+		for i := range *in {
+			if err := Convert_v1beta2_ServiceSecretConfig_To_v1alpha3_ServiceSecretConfig(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.Secrets = nil
+	}
 	out.StdinOpen = in.StdinOpen
-	out.StopGracePeriod = (*time.Duration)(unsafe.Pointer(in.StopGracePeriod))
-	out.Tmpfs = *(*[]string)(unsafe.Pointer(&in.Tmpfs))
+	out.StopGracePeriod = in.StopGracePeriod
+	out.Tmpfs = in.Tmpfs
 	out.Tty = in.Tty
-	out.User = (*int64)(unsafe.Pointer(in.User))
-	out.Volumes = *(*[]ServiceVolumeConfig)(unsafe.Pointer(&in.Volumes))
+	out.User = in.User
+	if in.Volumes != nil {
+		in, out := &in.Volumes, &out.Volumes
+		*out = make([]ServiceVolumeConfig, len(*in))
+		for i := range *in {
+			if err := Convert_v1beta2_ServiceVolumeConfig_To_v1alpha3_ServiceVolumeConfig(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.Volumes = nil
+	}
 	out.WorkingDir = in.WorkingDir
 	return nil
 }
@@ -577,7 +822,7 @@ func autoConvert_v1alpha3_ServiceConfigObjConfig_To_v1beta2_ServiceConfigObjConf
 	out.Target = in.Target
 	out.UID = in.UID
 	out.GID = in.GID
-	out.Mode = (*uint32)(unsafe.Pointer(in.Mode))
+	out.Mode = in.Mode
 	return nil
 }
 
@@ -591,7 +836,7 @@ func autoConvert_v1beta2_ServiceConfigObjConfig_To_v1alpha3_ServiceConfigObjConf
 	out.Target = in.Target
 	out.UID = in.UID
 	out.GID = in.GID
-	out.Mode = (*uint32)(unsafe.Pointer(in.Mode))
+	out.Mode = in.Mode
 	return nil
 }
 
@@ -631,7 +876,7 @@ func autoConvert_v1alpha3_ServiceSecretConfig_To_v1beta2_ServiceSecretConfig(in 
 	out.Target = in.Target
 	out.UID = in.UID
 	out.GID = in.GID
-	out.Mode = (*uint32)(unsafe.Pointer(in.Mode))
+	out.Mode = in.Mode
 	return nil
 }
 
@@ -645,7 +890,7 @@ func autoConvert_v1beta2_ServiceSecretConfig_To_v1alpha3_ServiceSecretConfig(in 
 	out.Target = in.Target
 	out.UID = in.UID
 	out.GID = in.GID
-	out.Mode = (*uint32)(unsafe.Pointer(in.Mode))
+	out.Mode = in.Mode
 	return nil
 }
 
@@ -682,8 +927,24 @@ func Convert_v1beta2_ServiceVolumeConfig_To_v1alpha3_ServiceVolumeConfig(in *v1b
 
 func autoConvert_v1alpha3_Stack_To_v1beta2_Stack(in *Stack, out *v1beta2.Stack, s conversion.Scope) error {
 	out.ObjectMeta = in.ObjectMeta
-	out.Spec = (*v1beta2.StackSpec)(unsafe.Pointer(in.Spec))
-	out.Status = (*v1beta2.StackStatus)(unsafe.Pointer(in.Status))
+	if in.Spec != nil {
+		in, out := &in.Spec, &out.Spec
+		*out = new(v1beta2.StackSpec)
+		if err := Convert_v1alpha3_StackSpec_To_v1beta2_StackSpec(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.Spec = nil
+	}
+	if in.Status != nil {
+		in, out := &in.Status, &out.Status
+		*out = new(v1beta2.StackStatus)
+		if err := Convert_v1alpha3_StackStatus_To_v1beta2_StackStatus(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.Status = nil
+	}
 	return nil
 }
 
@@ -694,8 +955,24 @@ func Convert_v1alpha3_Stack_To_v1beta2_Stack(in *Stack, out *v1beta2.Stack, s co
 
 func autoConvert_v1beta2_Stack_To_v1alpha3_Stack(in *v1beta2.Stack, out *Stack, s conversion.Scope) error {
 	out.ObjectMeta = in.ObjectMeta
-	out.Spec = (*StackSpec)(unsafe.Pointer(in.Spec))
-	out.Status = (*StackStatus)(unsafe.Pointer(in.Status))
+	if in.Spec != nil {
+		in, out := &in.Spec, &out.Spec
+		*out = new(StackSpec)
+		if err := Convert_v1beta2_StackSpec_To_v1alpha3_StackSpec(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.Spec = nil
+	}
+	if in.Status != nil {
+		in, out := &in.Status, &out.Status
+		*out = new(StackStatus)
+		if err := Convert_v1beta2_StackStatus_To_v1alpha3_StackStatus(*in, *out, s); err != nil {
+			return err
+		}
+	} else {
+		out.Status = nil
+	}
 	return nil
 }
 
@@ -706,7 +983,17 @@ func Convert_v1beta2_Stack_To_v1alpha3_Stack(in *v1beta2.Stack, out *Stack, s co
 
 func autoConvert_v1alpha3_StackList_To_v1beta2_StackList(in *StackList, out *v1beta2.StackList, s conversion.Scope) error {
 	out.ListMeta = in.ListMeta
-	out.Items = *(*[]v1beta2.Stack)(unsafe.Pointer(&in.Items))
+	if in.Items != nil {
+		in, out := &in.Items, &out.Items
+		*out = make([]v1beta2.Stack, len(*in))
+		for i := range *in {
+			if err := Convert_v1alpha3_Stack_To_v1beta2_Stack(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.Items = nil
+	}
 	return nil
 }
 
@@ -717,7 +1004,17 @@ func Convert_v1alpha3_StackList_To_v1beta2_StackList(in *StackList, out *v1beta2
 
 func autoConvert_v1beta2_StackList_To_v1alpha3_StackList(in *v1beta2.StackList, out *StackList, s conversion.Scope) error {
 	out.ListMeta = in.ListMeta
-	out.Items = *(*[]Stack)(unsafe.Pointer(&in.Items))
+	if in.Items != nil {
+		in, out := &in.Items, &out.Items
+		*out = make([]Stack, len(*in))
+		for i := range *in {
+			if err := Convert_v1beta2_Stack_To_v1alpha3_Stack(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.Items = nil
+	}
 	return nil
 }
 
@@ -727,9 +1024,43 @@ func Convert_v1beta2_StackList_To_v1alpha3_StackList(in *v1beta2.StackList, out 
 }
 
 func autoConvert_v1alpha3_StackSpec_To_v1beta2_StackSpec(in *StackSpec, out *v1beta2.StackSpec, s conversion.Scope) error {
-	out.Services = *(*[]v1beta2.ServiceConfig)(unsafe.Pointer(&in.Services))
-	out.Secrets = *(*map[string]v1beta2.SecretConfig)(unsafe.Pointer(&in.Secrets))
-	out.Configs = *(*map[string]v1beta2.ConfigObjConfig)(unsafe.Pointer(&in.Configs))
+	if in.Services != nil {
+		in, out := &in.Services, &out.Services
+		*out = make([]v1beta2.ServiceConfig, len(*in))
+		for i := range *in {
+			if err := Convert_v1alpha3_ServiceConfig_To_v1beta2_ServiceConfig(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.Services = nil
+	}
+	if in.Secrets != nil {
+		in, out := &in.Secrets, &out.Secrets
+		*out = make(map[string]v1beta2.SecretConfig, len(*in))
+		for key, val := range *in {
+			newVal := new(v1beta2.SecretConfig)
+			if err := Convert_v1alpha3_SecretConfig_To_v1beta2_SecretConfig(&val, newVal, s); err != nil {
+				return err
+			}
+			(*out)[key] = *newVal
+		}
+	} else {
+		out.Secrets = nil
+	}
+	if in.Configs != nil {
+		in, out := &in.Configs, &out.Configs
+		*out = make(map[string]v1beta2.ConfigObjConfig, len(*in))
+		for key, val := range *in {
+			newVal := new(v1beta2.ConfigObjConfig)
+			if err := Convert_v1alpha3_ConfigObjConfig_To_v1beta2_ConfigObjConfig(&val, newVal, s); err != nil {
+				return err
+			}
+			(*out)[key] = *newVal
+		}
+	} else {
+		out.Configs = nil
+	}
 	return nil
 }
 
@@ -739,9 +1070,43 @@ func Convert_v1alpha3_StackSpec_To_v1beta2_StackSpec(in *StackSpec, out *v1beta2
 }
 
 func autoConvert_v1beta2_StackSpec_To_v1alpha3_StackSpec(in *v1beta2.StackSpec, out *StackSpec, s conversion.Scope) error {
-	out.Services = *(*[]ServiceConfig)(unsafe.Pointer(&in.Services))
-	out.Secrets = *(*map[string]SecretConfig)(unsafe.Pointer(&in.Secrets))
-	out.Configs = *(*map[string]ConfigObjConfig)(unsafe.Pointer(&in.Configs))
+	if in.Services != nil {
+		in, out := &in.Services, &out.Services
+		*out = make([]ServiceConfig, len(*in))
+		for i := range *in {
+			if err := Convert_v1beta2_ServiceConfig_To_v1alpha3_ServiceConfig(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.Services = nil
+	}
+	if in.Secrets != nil {
+		in, out := &in.Secrets, &out.Secrets
+		*out = make(map[string]SecretConfig, len(*in))
+		for key, val := range *in {
+			newVal := new(SecretConfig)
+			if err := Convert_v1beta2_SecretConfig_To_v1alpha3_SecretConfig(&val, newVal, s); err != nil {
+				return err
+			}
+			(*out)[key] = *newVal
+		}
+	} else {
+		out.Secrets = nil
+	}
+	if in.Configs != nil {
+		in, out := &in.Configs, &out.Configs
+		*out = make(map[string]ConfigObjConfig, len(*in))
+		for key, val := range *in {
+			newVal := new(ConfigObjConfig)
+			if err := Convert_v1beta2_ConfigObjConfig_To_v1alpha3_ConfigObjConfig(&val, newVal, s); err != nil {
+				return err
+			}
+			(*out)[key] = *newVal
+		}
+	} else {
+		out.Configs = nil
+	}
 	return nil
 }
 
@@ -773,7 +1138,7 @@ func Convert_v1beta2_StackStatus_To_v1alpha3_StackStatus(in *v1beta2.StackStatus
 }
 
 func autoConvert_v1alpha3_UpdateConfig_To_v1beta2_UpdateConfig(in *UpdateConfig, out *v1beta2.UpdateConfig, s conversion.Scope) error {
-	out.Parallelism = (*uint64)(unsafe.Pointer(in.Parallelism))
+	out.Parallelism = in.Parallelism
 	return nil
 }
 
@@ -783,7 +1148,7 @@ func Convert_v1alpha3_UpdateConfig_To_v1beta2_UpdateConfig(in *UpdateConfig, out
 }
 
 func autoConvert_v1beta2_UpdateConfig_To_v1alpha3_UpdateConfig(in *v1beta2.UpdateConfig, out *UpdateConfig, s conversion.Scope) error {
-	out.Parallelism = (*uint64)(unsafe.Pointer(in.Parallelism))
+	out.Parallelism = in.Parallelism
 	return nil
 }
 
