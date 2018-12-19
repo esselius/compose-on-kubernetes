@@ -168,6 +168,7 @@ func (ns *Namespace) CreateStack(strategy StackOperationStrategy, name, composeF
 			ObjectMeta: metav1.ObjectMeta{
 				Name: name,
 			},
+			Spec: &v1beta2.StackSpec{},
 		}
 		spec := conversions.FromComposeConfig(config)
 		if err := v1alpha3.Convert_v1alpha3_StackSpec_To_v1beta2_StackSpec(spec, stack.Spec, nil); err != nil {
