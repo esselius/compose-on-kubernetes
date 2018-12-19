@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"strings"
 
-	apiv1beta2 "github.com/docker/compose-on-kubernetes/api/compose/v1beta2"
+	"github.com/docker/compose-on-kubernetes/api/compose/v1alpha3"
 	"github.com/docker/compose-on-kubernetes/internal/e2e/cluster"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -139,10 +139,10 @@ services:
 			if stack.Status == nil {
 				return false, nil
 			}
-			if stack.Status.Phase == apiv1beta2.StackFailure {
+			if stack.Status.Phase == v1alpha3.StackFailure {
 				return true, nil
 			}
-			if stack.Status.Phase == apiv1beta2.StackAvailable {
+			if stack.Status.Phase == v1alpha3.StackAvailable {
 				return false, errors.New("Stack available when it should not")
 			}
 			return false, nil

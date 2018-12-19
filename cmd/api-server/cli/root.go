@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/docker/compose-on-kubernetes/api/compose/v1alpha3"
 	"github.com/docker/compose-on-kubernetes/api/compose/v1beta1"
 	"github.com/docker/compose-on-kubernetes/api/compose/v1beta2"
 	"github.com/docker/compose-on-kubernetes/api/openapi"
@@ -259,6 +260,42 @@ func runComposeServer(o *apiServerOptions, stopCh <-chan struct{}) error {
 			}
 		} else {
 			if _, err := aggregatorClient.APIServices().Create(apiServiceV1beta2); err != nil {
+				return err
+			}
+		}
+
+		apiServiceV1alpha3 := &apiregistrationv1beta1types.APIService{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "v1alpha3.compose.docker.com",
+				Labels: map[string]string{
+					"com.docker.fry": "compose.api",
+				},
+			},
+			Spec: apiregistrationv1beta1types.APIServiceSpec{
+				CABundle:             caBundle,
+				Group:                v1alpha3.SchemeGroupVersion.Group,
+				GroupPriorityMinimum: 1000,
+				VersionPriority:      17,
+				Version:              v1alpha3.SchemeGroupVersion.Version,
+				Service: &apiregistrationv1beta1types.ServiceReference{
+					Namespace: o.serviceNamespace,
+					Name:      o.serviceName,
+				},
+			},
+		}
+		existing, err = aggregatorClient.APIServices().Get("v1alpha3.compose.docker.com", metav1.GetOptions{})
+		if err == nil {
+			bundle, err := mergeCABundle(existing.Spec.CABundle, caBundle)
+			if err != nil {
+				return err
+			}
+			apiServiceV1alpha3.ObjectMeta.ResourceVersion = existing.ObjectMeta.ResourceVersion
+			apiServiceV1alpha3.Spec.CABundle = bundle
+			if _, err := aggregatorClient.APIServices().Update(apiServiceV1alpha3); err != nil {
+				return err
+			}
+		} else {
+			if _, err := aggregatorClient.APIServices().Create(apiServiceV1alpha3); err != nil {
 				return err
 			}
 		}

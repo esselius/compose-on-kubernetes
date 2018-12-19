@@ -313,7 +313,7 @@ var composeRoleRules = []rbacv1types.PolicyRule{
 	{
 		APIGroups:     []string{"apiregistration.k8s.io"},
 		Resources:     []string{"apiservices"},
-		ResourceNames: []string{"v1beta1.compose.docker.com", "v1beta2.compose.docker.com"},
+		ResourceNames: []string{"v1beta1.compose.docker.com", "v1beta2.compose.docker.com", "v1alpha3.compose.docker.com"},
 		Verbs:         []string{"*"},
 	},
 	{
